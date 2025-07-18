@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>GPT Chatbot</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #chatbox { width: 100%; height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; }
+    #userInput { width: 80%; padding: 8px; }
+    #sendBtn { padding: 8px 16px; }
+    .message { margin: 10px 0; }
+    .user { color: blue; }
+    .bot { color: green; }
+  </style>
+</head>
+<body>
+  <h1>GPT 챗봇</h1>
+  <div id="chatbox"></div>
+  <input type="text" id="userInput" placeholder="질문을 입력하세요" />
+  <button id="sendBtn">전송</button>
+
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      chatbox.innerHTML += `<div class="message user">🙋‍♂️ ${message}</div>`;
+      userInput.value = "";
+
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer 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"
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: message }]
+        })
+      });
+
+      const data = await response.json();
+      const reply = data.choices?.[0]?.message?.content || "응답을 받을 수 없습니다.";
+      chatbox.innerHTML += `<div class="message bot">🤖 ${reply}</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
